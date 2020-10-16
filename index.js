@@ -70,7 +70,7 @@ client.connect(err => {
         //   if (error) {
         //     console.log(error)
         //     res.status(500).send({ msg: 'Failed to upload image' })
-        //   }         res.send(documents);
+                  res.send(documents);
       })
   })
 
