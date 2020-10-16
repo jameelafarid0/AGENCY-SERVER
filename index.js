@@ -39,112 +39,105 @@ client.connect(err => {
     const file = req.files.file;
     const description = req.body.description;
     const title = req.body.title;
+    const newImg = file.data;
+    const encImg = newImg.toString('base64');
 
-    const filePath = `${__dirname}/services/${file.name}`;
-    file.mv(filePath, err => {
-      if (err) {
-        console.log(err);
-        res.status(500).send({ msg: 'Failed to upload image' })
-      }
-      const newImg = fs.readFileSync(filePath);
-      const encImg = newImg.toString('base64');
+    var image = {
+      contentType: file.mimetype,
+      size: file.size,
+      img: Buffer.from(encImg, 'base64'),
 
-      var image = {
-        contentType: req.files.file.mimetype,
-        size: req.files.file.size,
-        img:  Buffer.from(encImg, 'base64'),
-
-      };
+    };
 
 
-      serviceCollection.insertOne({ image, description, title })
-        .then(result => {
-          fs.remove(filePath, error => {
-            if (error) {
-              console.log(error)
-              res.status(500).send({ msg: 'Failed to upload image' })
-            }
-            
-            res.sendStatus(result.insertedCount ? 200 : 500)
-          })
-
-        })
-    })
-  })  
-    
+    serviceCollection.insertOne({ image, description, title })
+      .then(result => {
 
 
-      app.get('/service', (req, res) => {
-        serviceCollection.find({})
-          .toArray((err, documents) => {
-            res.send(documents);
-          })
+        res.sendStatus(result.insertedCount ? 200 : 500)
+
+
       })
 
+  })
 
-      //for review
-      app.post('/addReviews', (req, res) => {
-        const review = req.body;
-        console.log(review)
-        reviewCollection.insertOne(review)
-          .then(result => {
-            console.log(result.insertedCount)
-            res.send(result.insertedCount > 0)
-          })
+
+
+  app.get('/service', (req, res) => {
+    serviceCollection.find({})
+      .toArray((err, documents) => {
+        // fs.remove(filePath, error => {
+        //   if (error) {
+        //     console.log(error)
+        //     res.status(500).send({ msg: 'Failed to upload image' })
+        //   }         res.send(documents);
       })
+  })
 
-      app.get('/review', (req, res) => {
-        reviewCollection.find({}).limit(6)
-          .toArray((err, documents) => {
-            res.send(documents);
-          })
+
+  //for review
+  app.post('/addReviews', (req, res) => {
+    const review = req.body;
+    console.log(review)
+    reviewCollection.insertOne(review)
+      .then(result => {
+        console.log(result.insertedCount)
+        res.send(result.insertedCount > 0)
       })
+  })
 
-
-      //for serviceList
-      app.post('/addServiceList', (req, res) => {
-        const orders = req.body;
-        serviceListCollection.insertOne(orders)
-          .then(result => {
-            res.send(result.insertedCount > 0)
-          })
+  app.get('/review', (req, res) => {
+    reviewCollection.find({}).limit(6)
+      .toArray((err, documents) => {
+        res.send(documents);
       })
+  })
 
-      app.get('/userService', (req, res) => {
-        serviceListCollection.find({ email: req.query.email })
-          .toArray((err, documents) => {
-            res.send(documents);
-          })
+
+  //for serviceList
+  app.post('/addServiceList', (req, res) => {
+    const orders = req.body;
+    serviceListCollection.insertOne(orders)
+      .then(result => {
+        res.send(result.insertedCount > 0)
       })
+  })
 
-      app.get('/allServices', (req, res) => {
-        serviceListCollection.find({})
-          .toArray((err, documents) => {
-            res.send(documents);
-          })
+  app.get('/userService', (req, res) => {
+    serviceListCollection.find({ email: req.query.email })
+      .toArray((err, documents) => {
+        res.send(documents);
       })
+  })
 
-
-
-
-      app.post('/adminEmail', (req, res) => {
-        const email = req.body;
-        adminCollection.insertOne(email)
-          .then(result => {
-            console.log(result)
-            res.send(result)
-          })
+  app.get('/allServices', (req, res) => {
+    serviceListCollection.find({})
+      .toArray((err, documents) => {
+        res.send(documents);
       })
+  })
 
 
 
-      app.post('/isAdmin', (req, res) => {
-        const email = req.body.email;
-        adminCollection.find({ email: email })
-          .toArray((err, admin) => {
-            res.send(admin.length > 0);
-          })
+
+  app.post('/adminEmail', (req, res) => {
+    const email = req.body;
+    adminCollection.insertOne(email)
+      .then(result => {
+        console.log(result)
+        res.send(result)
       })
+  })
+
+
+
+  app.post('/isAdmin', (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email })
+      .toArray((err, admin) => {
+        res.send(admin.length > 0);
+      })
+  })
 
 
 
@@ -156,11 +149,11 @@ client.connect(err => {
 
 
 
-    });
+});
 
 
 
 
 
 
-    app.listen(process.env.PORT || port)
+app.listen(process.env.PORT || port)
